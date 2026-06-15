@@ -18,8 +18,8 @@ const Product = () => {
         setError(null)
 
         const url = searchQuery
-            ? `https://ecom-backend-ovxs.vercel.app/=${encodeURIComponent(searchQuery)}`
-            : 'https://ecom-backend-ovxs.vercel.app'
+            ? `https://ecom-backend-ovxs.vercel.app/products?search=${encodeURIComponent(searchQuery)}`
+            : 'https://ecom-backend-ovxs.vercel.app/products'
 
         fetch(url)
             .then(res => res.json())
