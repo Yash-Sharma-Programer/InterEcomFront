@@ -23,7 +23,7 @@ function App() {
             <Route path="/admin" element={<AdminDashboard />} />
 
             {/* Main app routes - with Navbar */}
-            <Route path="/" element={
+            <Route path="/*" element={
               <>
                 <Navbar />
                 <Routes>
