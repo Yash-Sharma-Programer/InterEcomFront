@@ -18,8 +18,8 @@ const Product = () => {
         setError(null)
 
         const url = searchQuery
-            ? `https://ecom-backend-c5nn.vercel.app/products?search=${encodeURIComponent(searchQuery)}`
-            : 'https://ecom-backend-c5nn.vercel.app/'
+            ? `https://ecom-backend-six-sigma.vercel.app/products?search=${encodeURIComponent(searchQuery)}`
+            : 'https://ecom-backend-six-sigma.vercel.app/'
 
         fetch(url)
             .then(res => res.json())
