@@ -13,6 +13,8 @@ import Profile from './Pages/Profile'
 
 function App() {
   return (
+    <>
+        <h1>Welcome to Our Webpage</h1>
     <AuthProvider>
       <CartProvider>
         <BrowserRouter>
@@ -43,6 +45,7 @@ function App() {
         </BrowserRouter>
       </CartProvider>
     </AuthProvider>
+            </>
   )
 }
 
