@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom"
 import { CartProvider } from './context/CartContext'
 import { AuthProvider } from './context/AuthContext'
 import Navbar from './components/Navbar'
@@ -6,7 +6,7 @@ import Header from './components/Header'
 import Product from './components/Product'
 import SignIn from './Pages/SigIn'
 import LogIn from './Pages/LogIn'
-import AdminLogin from './Pages/AdminLogin.jsx'
+import AdminLogin from './Pages/AdminLogin'
 import AdminDashboard from './Pages/AdminDashboard'
 import AddProduct from './Pages/AddProduct'
 import Profile from './Pages/Profile'
