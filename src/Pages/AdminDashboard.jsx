@@ -87,7 +87,7 @@ const AdminDashboard = () => {
         if (!confirm('Are you sure you want to delete this product?')) return
         setDeletingId(id)
         try {
-            const res = await fetch(`http://localhost:3000/products/${id}`, {
+            const res = await fetch(`https://ecom-backend-c5nn.vercel.app/products/${id}`, {
                 method: 'DELETE',
                 headers: {
                     adminUsername,

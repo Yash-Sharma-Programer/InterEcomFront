@@ -41,7 +41,7 @@ const BuyNowModal = ({ product, onClose }) => {
         setLoading(true)
 
         try {
-            const res = await fetch('http://localhost:3000/orders', {
+            const res = await fetch('https://ecom-backend-c5nn.vercel.app/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',

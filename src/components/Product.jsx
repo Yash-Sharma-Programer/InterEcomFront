@@ -18,8 +18,8 @@ const Product = () => {
         setError(null)
 
         const url = searchQuery
-            ? `http://localhost:3000/products?search=${encodeURIComponent(searchQuery)}`
-            : 'http://localhost:3000/products'
+            ? `https://ecom-backend-c5nn.vercel.app/products?search=${encodeURIComponent(searchQuery)}`
+            : 'https://ecom-backend-c5nn.vercel.app/'
 
         fetch(url)
             .then(res => res.json())

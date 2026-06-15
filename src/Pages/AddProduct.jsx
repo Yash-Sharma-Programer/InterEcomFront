@@ -27,7 +27,7 @@ const AddProduct = () => {
     formData.append("productPrice", productPrice);
 
     try {
-      const res = await fetch("http://localhost:3000/addproduct", {
+      const res = await fetch("https://ecom-backend-c5nn.vercel.app/addproduct", {
         method: "POST",
         body: formData,
       })
