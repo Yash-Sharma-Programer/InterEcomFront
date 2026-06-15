@@ -14,7 +14,7 @@ const AdminLogin = () => {
         setError("")
 
         try {
-            const res = await fetch("https://ecom-backend-six-sigma.vercel.app/adminlogin", {
+            const res = await fetch("https://ecom-backend-ovxs.vercel.app/adminlogin", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, password })

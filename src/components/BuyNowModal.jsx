@@ -41,7 +41,7 @@ const BuyNowModal = ({ product, onClose }) => {
         setLoading(true)
 
         try {
-            const res = await fetch('https://ecom-backend-six-sigma.vercel.app/orders', {
+            const res = await fetch('https://ecom-backend-ovxs.vercel.app/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',

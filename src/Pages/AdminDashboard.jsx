@@ -67,7 +67,7 @@ const AdminDashboard = () => {
         setLoading(true)
         setError('')
         try {
-            const res = await fetch('http://localhost:3000/admin/analytics', {
+            const res = await fetch('https://ecom-backend-ovxs.vercel.app/admin/analytics', {
                 headers: {
                     adminusername: adminUsername,
                     adminpassword: adminPassword
