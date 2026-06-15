@@ -20,7 +20,7 @@ const SignIn = () => {
         setError("")
 
         try {
-            const res = await fetch("https://ecom-backend-six-sigma.vercel.app/signin", {
+            const res = await fetch("https://ecom-backend-ovxs.vercel.app/signin", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
