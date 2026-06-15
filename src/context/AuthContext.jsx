@@ -17,7 +17,7 @@ export function AuthProvider({ children }) {
     }
 
     function logout() {
-        fetch("http://localhost:3000/logout", { method: "POST", credentials: "include" }).catch(() => {});
+        fetch("https://ecom-backend-ovxs.vercel.app/logout", { method: "POST", credentials: "include" }).catch(() => {});
         setUser(null);
         localStorage.removeItem("user");
     }
