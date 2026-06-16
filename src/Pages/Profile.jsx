@@ -91,6 +91,12 @@ const Profile = () => {
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-3">
                     <h2 className="text-base font-bold text-gray-700 mb-2">Account Actions</h2>
                     <button
+                        onClick={() => navigate('/my-orders')}
+                        className="w-full flex items-center gap-3 text-sm text-gray-600 hover:bg-gray-50 px-4 py-3 rounded-xl transition"
+                    >
+                        📦 <span>My Orders</span>
+                    </button>
+                    <button
                         onClick={() => navigate('/')}
                         className="w-full flex items-center gap-3 text-sm text-gray-600 hover:bg-gray-50 px-4 py-3 rounded-xl transition"
                     >

@@ -72,6 +72,12 @@ const Navbar = () => {
             {user ? (
               <>
                 <NavLink
+                  to="/my-orders"
+                  className="hidden sm:block text-sm font-medium text-gray-700 hover:text-indigo-600 transition"
+                >
+                  My Orders
+                </NavLink>
+                <NavLink
                   to="/profile"
                   className="hidden sm:flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition"
                 >

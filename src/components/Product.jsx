@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
+import { useAuth } from '../context/AuthContext'
 import BuyNowModal from './BuyNowModal'
 
 const Product = () => {
@@ -10,6 +11,8 @@ const Product = () => {
     const [added, setAdded] = useState({})
     const [buyNowProduct, setBuyNowProduct] = useState(null)
     const { addToCart } = useCart()
+    const { user } = useAuth()
+    const navigate = useNavigate()
     const [searchParams] = useSearchParams()
     const searchQuery = searchParams.get('search') || ''
 
@@ -32,9 +35,21 @@ const Product = () => {
     }, [searchQuery])
 
     const handleAddToCart = (product) => {
+        if (!user) {
+            navigate('/login')
+            return
+        }
         addToCart(product)
         setAdded(prev => ({ ...prev, [product._id]: true }))
         setTimeout(() => setAdded(prev => ({ ...prev, [product._id]: false })), 1500)
+    }
+
+    const handleBuyNow = (product) => {
+        if (!user) {
+            navigate('/login')
+            return
+        }
+        setBuyNowProduct(product)
     }
 
     if (loading) return (
@@ -96,7 +111,7 @@ const Product = () => {
                                     </p>
                                     {/* Buy Now */}
                                     <button
-                                        onClick={() => setBuyNowProduct(product)}
+                                        onClick={() => handleBuyNow(product)}
                                         className="mt-3 w-full py-2 rounded-xl text-sm font-semibold bg-orange-500 hover:bg-orange-600 text-white transition-all duration-200"
                                     >
                                         ⚡ Buy Now
@@ -104,13 +119,17 @@ const Product = () => {
                                     {/* Add to Cart */}
                                     <button
                                         onClick={() => handleAddToCart(product)}
+                                        disabled={!user}
+                                        title={!user ? 'Login to add items to cart' : ''}
                                         className={`mt-2 w-full py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                                            added[product._id]
+                                            !user
+                                                ? 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
+                                                : added[product._id]
                                                 ? 'bg-green-500 text-white'
                                                 : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200'
                                         }`}
                                     >
-                                        {added[product._id] ? '✓ Added!' : '+ Add to Cart'}
+                                        {!user ? '🔒 Login to Add' : added[product._id] ? '✓ Added!' : '+ Add to Cart'}
                                     </button>
                                 </div>
                             </div>
