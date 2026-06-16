@@ -6,7 +6,7 @@ const BuyNowModal = ({ product, onClose }) => {
     const [qty, setQty] = useState(1)
     const [step, setStep] = useState('details') // 'details' | 'success'
     const [address, setAddress] = useState({
-        name: user?.username || '',
+        name: user?.name || '',
         phone: '',
         street: '',
         city: '',
@@ -53,7 +53,7 @@ const BuyNowModal = ({ product, onClose }) => {
                     quantity: qty,
                     totalAmount: total,
                     address,
-                    userId: user?._id || null,
+                    userId: user?._id || user?.id || null,
                 }),
             })
             const data = await res.json()
