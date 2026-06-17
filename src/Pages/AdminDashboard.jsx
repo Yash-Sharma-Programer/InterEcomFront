@@ -3,6 +3,14 @@ import { useNavigate } from 'react-router-dom'
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
+const statusStyles = {
+    pending: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+    confirmed: 'bg-blue-50 text-blue-700 border-blue-200',
+    shipped: 'bg-purple-50 text-purple-700 border-purple-200',
+    delivered: 'bg-green-50 text-green-700 border-green-200',
+    cancelled: 'bg-red-50 text-red-700 border-red-200',
+}
+
 const StatCard = ({ icon, label, value, sub, color }) => (
     <div className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex items-center gap-4`}>
         <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl ${color}`}>
@@ -52,6 +60,12 @@ const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('overview')
     const [deletingId, setDeletingId] = useState(null)
 
+    const [orders, setOrders] = useState([])
+    const [ordersLoading, setOrdersLoading] = useState(true)
+    const [ordersError, setOrdersError] = useState('')
+    const [updatingOrderId, setUpdatingOrderId] = useState(null)
+    const [orderStatusFilter, setOrderStatusFilter] = useState('all')
+
     const adminUsername = sessionStorage.getItem('adminUsername')
     const adminPassword = sessionStorage.getItem('adminPassword')
 
@@ -61,7 +75,53 @@ const AdminDashboard = () => {
             return
         }
         fetchAnalytics()
+        fetchOrders()
     }, [])
+
+    const fetchOrders = async () => {
+        setOrdersLoading(true)
+        setOrdersError('')
+        try {
+            const res = await fetch('https://ecom-backend-ovxs.vercel.app/orders', {
+                headers: {
+                    adminusername: adminUsername,
+                    adminpassword: adminPassword
+                }
+            })
+            const data = await res.json()
+            if (data.success) setOrders(data.orders)
+            else setOrdersError(data.message || 'Failed to load orders')
+        } catch {
+            setOrdersError('Could not connect to server')
+        } finally {
+            setOrdersLoading(false)
+        }
+    }
+
+    const handleStatusChange = async (orderId, newStatus) => {
+        setUpdatingOrderId(orderId)
+        try {
+            const res = await fetch(`https://ecom-backend-ovxs.vercel.app/orders/${orderId}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    adminusername: adminUsername,
+                    adminpassword: adminPassword
+                },
+                body: JSON.stringify({ status: newStatus })
+            })
+            const data = await res.json()
+            if (data.success) {
+                setOrders(prev => prev.map(o => o._id === orderId ? { ...o, status: newStatus } : o))
+            } else {
+                alert(data.message || 'Failed to update status')
+            }
+        } catch {
+            alert('Could not connect to server')
+        } finally {
+            setUpdatingOrderId(null)
+        }
+    }
 
     const fetchAnalytics = async () => {
         setLoading(true)
@@ -135,7 +195,7 @@ const AdminDashboard = () => {
 
     const { summary, productsByMonth, usersByMonth, priceRanges, topProducts, recentUsers, recentProducts } = analytics
 
-    const tabs = ['overview', 'products', 'users']
+    const tabs = ['overview', 'products', 'users', 'orders']
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -206,6 +266,30 @@ const AdminDashboard = () => {
                             />
                         </div>
 
+                        {/* Orders Summary Cards */}
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            <StatCard
+                                icon="🧾" label="Total Orders" color="bg-orange-50"
+                                value={orders.length}
+                                sub="All time"
+                            />
+                            <StatCard
+                                icon="💵" label="Order Revenue" color="bg-green-50"
+                                value={`₹${orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0).toLocaleString('en-IN')}`}
+                                sub="Sum of all orders"
+                            />
+                            <StatCard
+                                icon="⏳" label="Pending" color="bg-yellow-50"
+                                value={orders.filter(o => o.status === 'pending').length}
+                                sub="Awaiting confirmation"
+                            />
+                            <StatCard
+                                icon="🚚" label="Shipped" color="bg-purple-50"
+                                value={orders.filter(o => o.status === 'shipped').length}
+                                sub="On the way"
+                            />
+                        </div>
+
                         {/* Charts Row */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <BarChart
@@ -260,6 +344,47 @@ const AdminDashboard = () => {
                                     ))}
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Recent Orders Preview */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                                <h3 className="font-semibold text-gray-800">Recent Orders</h3>
+                                <button
+                                    onClick={() => setActiveTab('orders')}
+                                    className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                                >
+                                    View all →
+                                </button>
+                            </div>
+                            {ordersLoading ? (
+                                <p className="text-gray-400 text-sm text-center py-8">Loading orders...</p>
+                            ) : orders.length === 0 ? (
+                                <p className="text-gray-400 text-sm text-center py-8">No orders yet</p>
+                            ) : (
+                                <div className="divide-y divide-gray-50">
+                                    {orders.slice(0, 5).map(o => (
+                                        <div key={o._id} className="px-6 py-3 flex items-center gap-3">
+                                            <img
+                                                src={o.productImage}
+                                                alt={o.productName}
+                                                className="w-10 h-10 object-contain rounded-lg bg-gray-50 border border-gray-100 shrink-0"
+                                                onError={e => e.target.src = 'https://via.placeholder.com/40?text=?'}
+                                            />
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-medium text-gray-800 truncate">{o.productName} × {o.quantity}</p>
+                                                <p className="text-xs text-gray-400">{o.address?.name} · {o.address?.city}</p>
+                                            </div>
+                                            <span className={`text-xs font-medium px-2.5 py-1 rounded-full border shrink-0 ${statusStyles[o.status] || 'bg-gray-50 text-gray-600 border-gray-200'}`}>
+                                                {o.status?.charAt(0).toUpperCase() + o.status?.slice(1)}
+                                            </span>
+                                            <span className="text-sm font-bold text-indigo-600 shrink-0">
+                                                ₹{Number(o.totalAmount).toLocaleString('en-IN')}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
@@ -362,6 +487,107 @@ const AdminDashboard = () => {
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                )}
+
+                {/* ORDERS TAB */}
+                {activeTab === 'orders' && (
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-3 flex-wrap">
+                            <h3 className="font-semibold text-gray-800">
+                                Orders Summary ({orders.filter(o => orderStatusFilter === 'all' || o.status === orderStatusFilter).length})
+                            </h3>
+                            <div className="flex items-center gap-2">
+                                <select
+                                    value={orderStatusFilter}
+                                    onChange={e => setOrderStatusFilter(e.target.value)}
+                                    className="text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                                >
+                                    <option value="all">All Statuses</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="confirmed">Confirmed</option>
+                                    <option value="shipped">Shipped</option>
+                                    <option value="delivered">Delivered</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                                <button
+                                    onClick={fetchOrders}
+                                    className="text-sm text-indigo-600 hover:text-indigo-700 font-medium border border-indigo-200 px-4 py-2 rounded-xl hover:bg-indigo-50 transition"
+                                >
+                                    🔄 Refresh
+                                </button>
+                            </div>
+                        </div>
+
+                        {ordersLoading ? (
+                            <div className="flex justify-center py-16">
+                                <div className="animate-spin rounded-full h-10 w-10 border-4 border-indigo-600 border-t-transparent"></div>
+                            </div>
+                        ) : ordersError ? (
+                            <p className="text-center py-16 text-gray-400">{ordersError}</p>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead>
+                                        <tr className="bg-gray-50 text-left">
+                                            <th className="px-6 py-3 font-medium text-gray-500">Product</th>
+                                            <th className="px-6 py-3 font-medium text-gray-500">Customer</th>
+                                            <th className="px-6 py-3 font-medium text-gray-500">Qty</th>
+                                            <th className="px-6 py-3 font-medium text-gray-500">Amount</th>
+                                            <th className="px-6 py-3 font-medium text-gray-500">Placed On</th>
+                                            <th className="px-6 py-3 font-medium text-gray-500">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {orders.filter(o => orderStatusFilter === 'all' || o.status === orderStatusFilter).length === 0 ? (
+                                            <tr>
+                                                <td colSpan={6} className="text-center py-12 text-gray-400">No orders found</td>
+                                            </tr>
+                                        ) : orders
+                                            .filter(o => orderStatusFilter === 'all' || o.status === orderStatusFilter)
+                                            .map(o => (
+                                            <tr key={o._id} className="border-t border-gray-50 hover:bg-gray-50 transition">
+                                                <td className="px-6 py-3">
+                                                    <div className="flex items-center gap-3">
+                                                        <img
+                                                            src={o.productImage}
+                                                            alt={o.productName}
+                                                            className="w-12 h-12 object-contain rounded-xl bg-gray-50 border border-gray-100 shrink-0"
+                                                            onError={e => e.target.src = 'https://via.placeholder.com/48?text=?'}
+                                                        />
+                                                        <span className="font-medium text-gray-800 max-w-[160px] truncate">{o.productName}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-3 text-gray-600">
+                                                    <p className="font-medium text-gray-800">{o.address?.name}</p>
+                                                    <p className="text-xs text-gray-400">{o.address?.phone}</p>
+                                                    <p className="text-xs text-gray-400">{o.address?.street}, {o.address?.city} - {o.address?.pincode}</p>
+                                                </td>
+                                                <td className="px-6 py-3 text-gray-600">{o.quantity}</td>
+                                                <td className="px-6 py-3 font-bold text-indigo-600">₹{Number(o.totalAmount).toLocaleString('en-IN')}</td>
+                                                <td className="px-6 py-3 text-gray-500">
+                                                    {new Date(o.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                </td>
+                                                <td className="px-6 py-3">
+                                                    <select
+                                                        value={o.status}
+                                                        disabled={updatingOrderId === o._id}
+                                                        onChange={e => handleStatusChange(o._id, e.target.value)}
+                                                        className={`text-xs font-medium px-2.5 py-1.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-400 disabled:opacity-50 ${statusStyles[o.status] || 'bg-gray-50 text-gray-600 border-gray-200'}`}
+                                                    >
+                                                        <option value="pending">Pending</option>
+                                                        <option value="confirmed">Confirmed</option>
+                                                        <option value="shipped">Shipped</option>
+                                                        <option value="delivered">Delivered</option>
+                                                        <option value="cancelled">Cancelled</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
