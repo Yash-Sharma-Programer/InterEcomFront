@@ -27,11 +27,10 @@ export default function AdminUsers() {
                   </span>
                 </td>
                 <td className="py-3 flex gap-2">
-                  <button className="btn btn-outline text-sm">
+                  <button className="btn btn-outline text-blue-600">
                     <Unlock className="w-4 h-4" />
                   </button>
-                  <button className="btn btn-danger text-sm">
-                    
+                  <button className="btn btn-danger text-blue-600">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </td>
