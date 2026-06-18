@@ -31,7 +31,7 @@ export default function AdminUsers() {
                     <Unlock className="w-4 h-4" />
                   </button>
                   <button className="btn btn-danger text-sm">
-                    Delete
+                    
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </td>
