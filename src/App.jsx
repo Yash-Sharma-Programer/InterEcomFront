@@ -22,6 +22,9 @@ import AdminSettings from './pages/admin/Settings';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
+// css files 
+import './index.css'
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
