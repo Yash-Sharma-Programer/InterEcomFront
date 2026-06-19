@@ -52,7 +52,7 @@ const ReviewSection = ({ productId, currentUser }) => {
         setError('')
         setSubmitting(true)
         try {
-            const res = await fetch(`http://localhost:3000/reviews/${productId}`, {
+            const res = await fetch(`https://ecom-backend-ovxs.vercel.app/reviews/${productId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -78,7 +78,7 @@ const ReviewSection = ({ productId, currentUser }) => {
     const handleDelete = async (reviewId) => {
         if (!confirm('Delete this review?')) return
         try {
-            const res = await fetch(`http://localhost:3000/reviews/${reviewId}`, {
+            const res = await fetch(`https://ecom-backend-ovxs.vercel.app/reviews/${reviewId}`, {
                 method: 'DELETE',
                 credentials: 'include'
             })
