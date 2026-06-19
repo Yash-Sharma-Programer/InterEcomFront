@@ -1,25 +1,34 @@
 import { createContext, useContext, useState, useEffect } from "react";
-
+import Cookies from "js-cookie";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(() => {
         try {
-            return JSON.parse(localStorage.getItem("user")) || null;
+            return JSON.parse(Cookies.get("user")) || null;
         } catch {
             return null;
         }
     });
 
     function login(userData) {
-        setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
+        // setUser(userData);
+        // localStorage.setItem("user", JSON.stringify(userData));
+        Cookies.set("user", JSON.stringify(userData), {
+            expires: 7,
+            secure: true,
+            sameSite: "none",
+        });
     }
 
     function logout() {
-        fetch("https://ecom-backend-ovxs.vercel.app/logout", { method: "POST", credentials: "include" }).catch(() => {});
+        fetch("https://ecom-backend-ovxs.vercel.app/logout", { method: "POST", credentials: "include" }).catch(() => { });
         setUser(null);
-        localStorage.removeItem("user");
+        Cookies.set("user", JSON.stringify(userData), {
+            expires: 7,
+            secure: true,
+            sameSite: "none",
+        });
     }
 
     return (
