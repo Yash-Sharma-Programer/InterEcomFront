@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
     });
 
     function login(userData) {
-        // setUser(userData);
+        setUser(userData);
         // localStorage.setItem("user", JSON.stringify(userData));
         Cookies.set("user", JSON.stringify(userData), {
             expires: 7,
@@ -24,11 +24,7 @@ export function AuthProvider({ children }) {
     function logout() {
         fetch("https://ecom-backend-ovxs.vercel.app/logout", { method: "POST", credentials: "include" }).catch(() => { });
         setUser(null);
-        Cookies.set("user", JSON.stringify(userData), {
-            expires: 7,
-            secure: true,
-            sameSite: "none",
-        });
+        Cookies.remove("user");
     }
 
     return (
