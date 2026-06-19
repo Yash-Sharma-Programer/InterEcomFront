@@ -22,8 +22,8 @@ const LogIn = () => {
     try {
       const res = await fetch("https://ecom-backend-ovxs.vercel.app/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       })
       const data = await res.json()
