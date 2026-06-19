@@ -87,7 +87,7 @@ const AdminDashboard = () => {
     const fetchAllUsers = async () => {
         setUsersLoading(true)
         try {
-            const res = await fetch('http://localhost:3000/admin/users', { headers: adminHeaders })
+            const res = await fetch('https://ecom-backend-ovxs.vercel.app/admin/users', { headers: adminHeaders })
             const data = await res.json()
             if (data.success) setAllUsers(data.users)
         } catch {} finally { setUsersLoading(false) }
