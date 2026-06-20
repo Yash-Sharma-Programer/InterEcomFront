@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { authApi } from "../api/auth.api";
+import { useAuth } from "../context/AuthContext";
+import { toast } from "react-toastify";
 
 const AdminLogin = () => {
     const navigate = useNavigate()
+    const { login } = useAuth()
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
@@ -14,23 +18,18 @@ const AdminLogin = () => {
         setError("")
 
         try {
-            const res = await fetch("https://ecom-backend-ovxs.vercel.app/adminlogin", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password })
-            })
-            const data = await res.json()
+            const res = await authApi.adminLogin({ username, password })
+            const data = res.data
 
             if (data.success) {
-                // Store admin credentials for subsequent API calls
-                sessionStorage.setItem('adminUsername', username)
-                sessionStorage.setItem('adminPassword', password)
+                login(data.user, data.token)
+                toast.success("Welcome back, Admin")
                 navigate('/admin')
             } else {
                 setError(data.message || "Invalid credentials")
             }
-        } catch {
-            setError("Could not connect to server")
+        } catch (err) {
+            setError(err.response?.data?.message || "Could not connect to server")
         } finally {
             setLoading(false)
         }
@@ -38,7 +37,7 @@ const AdminLogin = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-            <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-8">
+            <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-6 sm:p-8">
                 <div className="text-center mb-8">
                     <span className="text-4xl">🔐</span>
                     <h1 className="text-2xl font-bold text-gray-800 mt-2">Admin Login</h1>

@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { orderApi } from '../api/order.api'
+import { toast } from 'react-toastify'
 
 const BuyNowModal = ({ product, onClose }) => {
     const { user } = useAuth()
     const [qty, setQty] = useState(1)
     const [step, setStep] = useState('details') // 'details' | 'success'
+    const [paymentMethod, setPaymentMethod] = useState('cod')
     const [address, setAddress] = useState({
-        name: user?.username || '',
+        name: user?.name || '',
         phone: '',
         street: '',
         city: '',
@@ -17,6 +20,7 @@ const BuyNowModal = ({ product, onClose }) => {
 
     if (!product) return null
 
+    const maxQty = product.stock !== undefined ? Math.max(product.stock, 1) : 99
     const total = product.Product_Price * qty
 
     const handleChange = (e) => {
@@ -41,29 +45,25 @@ const BuyNowModal = ({ product, onClose }) => {
         setLoading(true)
 
         try {
-            const res = await fetch('https://ecom-backend-ovxs.vercel.app/orders', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({
+            const res = await orderApi.place({
+                items: [{
                     product: product._id,
                     productName: product.Product_name,
                     productPrice: product.Product_Price,
-                    productImage: product.Product_URl,
+                    productImage: product.images?.[0] || product.Product_URl,
                     quantity: qty,
-                    totalAmount: total,
-                    address,
-                    userId: user?._id || null,
-                }),
+                }],
+                address,
+                paymentMethod,
+                userId: user?._id || user?.id || null,
             })
-            const data = await res.json()
-            if (data.success) {
+            if (res.data.success) {
                 setStep('success')
             } else {
-                setError(data.message || 'Order failed. Please try again.')
+                setError(res.data.message || 'Order failed. Please try again.')
             }
-        } catch {
-            setError('Could not connect to server.')
+        } catch (err) {
+            setError(err.response?.data?.message || 'Could not connect to server.')
         } finally {
             setLoading(false)
         }
@@ -81,7 +81,7 @@ const BuyNowModal = ({ product, onClose }) => {
                     onClick={e => e.stopPropagation()}
                 >
                     {step === 'success' ? (
-                        /* ── Success screen ── */
+                        /* Success screen */
                         <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
                             <div className="text-6xl mb-4 animate-bounce">🎉</div>
                             <h2 className="text-2xl font-bold text-gray-800 mb-2">Order Placed!</h2>
@@ -89,7 +89,7 @@ const BuyNowModal = ({ product, onClose }) => {
                                 <span className="font-semibold text-indigo-600">{product.Product_name}</span> × {qty}
                             </p>
                             <p className="text-gray-500 mb-6">
-                                Total paid: <span className="font-bold text-indigo-600">₹{total.toLocaleString('en-IN')}</span>
+                                Total: <span className="font-bold text-indigo-600">₹{total.toLocaleString('en-IN')}</span>
                             </p>
                             <p className="text-sm text-gray-400 mb-6">
                                 Delivering to <span className="font-medium">{address.name}</span>, {address.city} — {address.pincode}
@@ -102,7 +102,6 @@ const BuyNowModal = ({ product, onClose }) => {
                             </button>
                         </div>
                     ) : (
-                        /* ── Details screen ── */
                         <>
                             {/* Header */}
                             <div className="flex items-center justify-between px-5 py-4 border-b sticky top-0 bg-white rounded-t-2xl">
@@ -119,7 +118,7 @@ const BuyNowModal = ({ product, onClose }) => {
                                 {/* Product summary */}
                                 <div className="flex gap-4 items-center bg-gray-50 rounded-xl p-3">
                                     <img
-                                        src={product.Product_URl}
+                                        src={product.images?.[0] || product.Product_URl}
                                         alt={product.Product_name}
                                         className="w-16 h-16 object-contain rounded-lg bg-white border"
                                         onError={e => e.target.src = 'https://via.placeholder.com/64'}
@@ -128,7 +127,6 @@ const BuyNowModal = ({ product, onClose }) => {
                                         <p className="font-semibold text-gray-800 truncate">{product.Product_name}</p>
                                         <p className="text-indigo-600 font-bold">₹{Number(product.Product_Price).toLocaleString('en-IN')}</p>
                                     </div>
-                                    {/* Qty control */}
                                     <div className="flex items-center gap-2">
                                         <button
                                             onClick={() => setQty(q => Math.max(1, q - 1))}
@@ -136,7 +134,7 @@ const BuyNowModal = ({ product, onClose }) => {
                                         >−</button>
                                         <span className="w-6 text-center font-semibold">{qty}</span>
                                         <button
-                                            onClick={() => setQty(q => q + 1)}
+                                            onClick={() => setQty(q => Math.min(maxQty, q + 1))}
                                             className="w-7 h-7 rounded-full bg-indigo-100 hover:bg-indigo-200 flex items-center justify-center font-bold text-indigo-700"
                                         >+</button>
                                     </div>
@@ -168,6 +166,29 @@ const BuyNowModal = ({ product, onClose }) => {
                                     </div>
                                 </div>
 
+                                {/* Payment method */}
+                                <div>
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-1">
+                                        💳 Payment Method
+                                    </h3>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setPaymentMethod('cod')}
+                                            className={`text-sm font-medium py-2.5 rounded-xl border transition ${paymentMethod === 'cod' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-500'}`}
+                                        >
+                                            Cash on Delivery
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setPaymentMethod('online')}
+                                            className={`text-sm font-medium py-2.5 rounded-xl border transition ${paymentMethod === 'online' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-500'}`}
+                                        >
+                                            Pay Online
+                                        </button>
+                                    </div>
+                                </div>
+
                                 {error && (
                                     <p className="text-red-500 text-sm bg-red-50 border border-red-100 rounded-xl px-3 py-2">
                                         {error}
@@ -187,9 +208,9 @@ const BuyNowModal = ({ product, onClose }) => {
                                     >
                                         {loading ? (
                                             <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-5 h-5 inline-block" />
-                                        ) : '⚡ Place Order'}
+                                        ) : `⚡ Place Order${paymentMethod === 'online' ? ' & Pay' : ''}`}
                                     </button>
-                                    <p className="text-xs text-center text-gray-400">Cash on Delivery · Free shipping</p>
+                                    <p className="text-xs text-center text-gray-400">Free shipping on all orders</p>
                                 </div>
                             </div>
                         </>

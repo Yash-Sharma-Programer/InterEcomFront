@@ -1,9 +1,12 @@
 import { useState } from 'react'
-import { useNavigate, NavLink } from "react-router-dom";
+import { useNavigate, NavLink, useLocation } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
+import { authApi } from '../api/auth.api';
+import { toast } from 'react-toastify';
 
 const LogIn = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth()
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("")
@@ -20,34 +23,30 @@ const LogIn = () => {
     setError("")
 
     try {
-      const res = await fetch("https://ecom-backend-ovxs.vercel.app/login", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      })
-      const data = await res.json()
+      const res = await authApi.login(formData)
+      const data = res.data
 
       if (data.success) {
-        login(data.user)
-        navigate('/')
+        login(data.user, data.token)
+        toast.success(`Welcome back, ${data.user.name}!`)
+        navigate(location.state?.from || '/')
       } else {
         setError(data.message || "Invalid credentials")
       }
-    } catch {
-      setError("Could not connect to server")
+    } catch (err) {
+      setError(err.response?.data?.message || "Could not connect to server")
     } finally {
       setLoading(false)
     }
   };
 
   return (
-    <div className="min-h-screen bg-linear-to from-indigo-50 to-purple-50 flex items-center justify-center px-4">
-      <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center px-4 py-10">
+      <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-6 sm:p-8">
         <div className="text-center mb-8">
           <span className="text-4xl">👋</span>
           <h1 className="text-2xl font-bold text-gray-800 mt-2">Welcome Back</h1>
-          <p className="text-gray-500 text-sm mt-1">Log in to your ShopEase account</p>
+          <p className="text-gray-500 text-sm mt-1">Log in to your ShopZen account</p>
         </div>
 
         {error && (

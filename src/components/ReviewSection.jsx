@@ -1,177 +1,94 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { useAuth } from '../context/AuthContext'
+import { reviewApi } from '../api/review.api'
+import { toast } from 'react-toastify'
+import StarRating from './StarRating'
 
-const StarRating = ({ value, onChange, readOnly = false }) => {
-    const [hover, setHover] = useState(0)
-    return (
-        <div className="flex gap-0.5">
-            {[1, 2, 3, 4, 5].map(star => (
-                <button
-                    key={star}
-                    type="button"
-                    disabled={readOnly}
-                    onClick={() => !readOnly && onChange && onChange(star)}
-                    onMouseEnter={() => !readOnly && setHover(star)}
-                    onMouseLeave={() => !readOnly && setHover(0)}
-                    className={`text-xl transition-colors ${readOnly ? 'cursor-default' : 'cursor-pointer'} ${
-                        star <= (hover || value) ? 'text-yellow-400' : 'text-gray-300'
-                    }`}
-                >★</button>
-            ))}
-        </div>
-    )
-}
-
-const ReviewSection = ({ productId, currentUser }) => {
+const ReviewSection = ({ productId }) => {
+    const { user } = useAuth()
     const [reviews, setReviews] = useState([])
     const [loading, setLoading] = useState(true)
-    const [submitting, setSubmitting] = useState(false)
     const [rating, setRating] = useState(0)
-    const [comment, setComment] = useState('')
-    const [error, setError] = useState('')
-    const [success, setSuccess] = useState('')
+    const [text, setText] = useState('')
+    const [submitting, setSubmitting] = useState(false)
 
-    const fetchReviews = async () => {
-        try {
-            const res = await fetch(`https://ecom-backend-ovxs.vercel.app/reviews/${productId}`)
-            const data = await res.json()
-            if (data.success) setReviews(data.reviews)
-        } catch {
-            // silent
-        } finally {
-            setLoading(false)
-        }
+    const fetchReviews = () => {
+        setLoading(true)
+        reviewApi.getForProduct(productId)
+            .then(res => { if (res.data.success) setReviews(res.data.reviews) })
+            .catch(() => {})
+            .finally(() => setLoading(false))
     }
 
     useEffect(() => {
         fetchReviews()
     }, [productId])
 
-    const handleSubmit = async () => {
-        if (!rating) { setError('Please select a rating'); return }
-        if (!comment.trim()) { setError('Please write a comment'); return }
-        setError('')
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        if (!user) { toast.info('Log in to write a review'); return }
+        if (rating === 0) { toast.error('Please select a rating'); return }
+        if (!text.trim()) { toast.error('Please write your review'); return }
+
         setSubmitting(true)
         try {
-            const res = await fetch(`https://ecom-backend-ovxs.vercel.app/reviews/${productId}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ rating, comment })
-            })
-            const data = await res.json()
-            if (data.success) {
-                setSuccess('Review added!')
+            const res = await reviewApi.submit({ productId, rating, text })
+            if (res.data.success) {
+                toast.success(res.data.message || 'Review submitted for approval')
                 setRating(0)
-                setComment('')
-                fetchReviews()
-                setTimeout(() => setSuccess(''), 3000)
-            } else {
-                setError(data.message)
+                setText('')
             }
-        } catch {
-            setError('Failed to submit review')
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Could not submit review')
         } finally {
             setSubmitting(false)
         }
     }
 
-    const handleDelete = async (reviewId) => {
-        if (!confirm('Delete this review?')) return
-        try {
-            const res = await fetch(`https://ecom-backend-ovxs.vercel.app/reviews/${reviewId}`, {
-                method: 'DELETE',
-                credentials: 'include'
-            })
-            const data = await res.json()
-            if (data.success) fetchReviews()
-            else alert(data.message)
-        } catch {
-            alert('Failed to delete review')
-        }
-    }
-
-    const avgRating = reviews.length > 0
-        ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
-        : null
-
     return (
-        <div className="mt-6 border-t border-gray-100 pt-6">
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base font-bold text-gray-800">
-                    Customer Reviews
-                    <span className="ml-2 text-sm font-normal text-gray-400">({reviews.length})</span>
-                </h3>
-                {avgRating && (
-                    <div className="flex items-center gap-1">
-                        <StarRating value={Math.round(avgRating)} readOnly />
-                        <span className="text-sm font-semibold text-gray-700">{avgRating}</span>
-                    </div>
-                )}
-            </div>
+        <div className="mt-10">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-5">Customer Reviews</h2>
 
-            {/* Add Review Form */}
-            {currentUser ? (
-                <div className="bg-gray-50 rounded-xl p-4 mb-4">
-                    <p className="text-sm font-semibold text-gray-700 mb-2">Write a Review</p>
-                    <div className="mb-2">
-                        <StarRating value={rating} onChange={setRating} />
-                    </div>
+            {/* Review form */}
+            <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-6">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">Write a Review</h3>
+                <form onSubmit={handleSubmit} className="space-y-3">
+                    <StarRating value={rating} onChange={setRating} size="text-2xl" />
                     <textarea
-                        value={comment}
-                        onChange={e => setComment(e.target.value)}
+                        value={text}
+                        onChange={e => setText(e.target.value)}
+                        placeholder={user ? "Share your experience with this product..." : "Log in to write a review"}
+                        disabled={!user}
                         rows={3}
-                        placeholder="Share your experience..."
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 disabled:bg-gray-100"
                     />
-                    {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-                    {success && <p className="text-green-500 text-xs mt-1">{success}</p>}
                     <button
-                        onClick={handleSubmit}
-                        disabled={submitting}
-                        className="mt-2 bg-indigo-600 text-white text-sm px-5 py-2 rounded-lg hover:bg-indigo-700 transition disabled:opacity-50"
+                        type="submit"
+                        disabled={!user || submitting}
+                        className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition disabled:opacity-60"
                     >
                         {submitting ? 'Submitting...' : 'Submit Review'}
                     </button>
-                </div>
-            ) : (
-                <p className="text-sm text-gray-400 bg-gray-50 rounded-xl px-4 py-3 mb-4">
-                    Please <a href="/login" className="text-indigo-500 underline">log in</a> to write a review.
-                </p>
-            )}
+                </form>
+            </div>
 
-            {/* Reviews List */}
+            {/* Reviews list */}
             {loading ? (
-                <p className="text-sm text-gray-400 text-center py-4">Loading reviews...</p>
+                <p className="text-sm text-gray-400">Loading reviews...</p>
             ) : reviews.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-4">No reviews yet. Be the first!</p>
+                <p className="text-sm text-gray-400">No reviews yet. Be the first to review this product!</p>
             ) : (
-                <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
-                    {reviews.map(r => (
-                        <div key={r._id} className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
-                            <div className="flex items-start justify-between gap-2">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 font-bold text-sm flex items-center justify-center shrink-0">
-                                        {r.username?.charAt(0).toUpperCase()}
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-semibold text-gray-800">{r.username}</p>
-                                        <StarRating value={r.rating} readOnly />
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2 shrink-0">
-                                    <span className="text-xs text-gray-400">
-                                        {new Date(r.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                    </span>
-                                    {currentUser && currentUser.id === r.userId && (
-                                        <button
-                                            onClick={() => handleDelete(r._id)}
-                                            className="text-xs text-red-400 hover:text-red-600 transition"
-                                            title="Delete review"
-                                        >🗑</button>
-                                    )}
-                                </div>
+                <div className="space-y-4">
+                    {reviews.map(review => (
+                        <div key={review._id} className="border border-gray-100 rounded-xl p-4">
+                            <div className="flex items-center justify-between mb-1.5">
+                                <span className="font-semibold text-sm text-gray-800">{review.username}</span>
+                                <span className="text-xs text-gray-400">
+                                    {new Date(review.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                </span>
                             </div>
-                            <p className="text-sm text-gray-600 mt-2 ml-10">{r.comment}</p>
+                            <StarRating value={review.rating} size="text-sm" />
+                            <p className="text-sm text-gray-600 mt-2">{review.text}</p>
                         </div>
                     ))}
                 </div>

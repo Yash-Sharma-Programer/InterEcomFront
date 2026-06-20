@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
+import { authApi } from '../api/auth.api';
+import { toast } from 'react-toastify';
 
 const SignIn = () => {
     const navigate = useNavigate();
@@ -20,34 +22,30 @@ const SignIn = () => {
         setError("")
 
         try {
-            const res = await fetch("https://ecom-backend-ovxs.vercel.app/signin", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify(formData),
-            })
-            const data = await res.json()
+            const res = await authApi.register(formData)
+            const data = res.data
 
             if (data.success) {
-                login(data.user)
+                login(data.user, data.token)
+                toast.success(`Welcome to ShopZen, ${data.user.name}!`)
                 navigate('/')
             } else {
                 setError(data.message || "Registration failed")
             }
-        } catch {
-            setError("Could not connect to server")
+        } catch (err) {
+            setError(err.response?.data?.message || "Could not connect to server")
         } finally {
             setLoading(false)
         }
     };
 
     return (
-        <div className="min-h-screen bg-linear-to from-indigo-50 to-purple-50 flex items-center justify-center px-4">
-            <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-8">
+        <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center px-4 py-10">
+            <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-6 sm:p-8">
                 <div className="text-center mb-8">
                     <span className="text-4xl">🛍</span>
                     <h1 className="text-2xl font-bold text-gray-800 mt-2">Create Account</h1>
-                    <p className="text-gray-500 text-sm mt-1">Join ShopEase today — it's free!</p>
+                    <p className="text-gray-500 text-sm mt-1">Join ShopZen today — it's free!</p>
                 </div>
 
                 {error && (
