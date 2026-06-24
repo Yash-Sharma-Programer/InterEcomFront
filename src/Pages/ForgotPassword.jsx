@@ -8,17 +8,20 @@ const ForgotPassword = () => {
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState('')
     const [error, setError] = useState('')
+    const [resetLink, setResetLink] = useState('')
 
     const handleSubmit = async (e) => {
         e.preventDefault()
         setLoading(true)
         setMessage('')
         setError('')
+        setResetLink('')
 
         try {
             const res = await authApi.forgotPassword({ email })
             setMessage(res.data.message || 'Reset link sent to your email')
-            toast.success('Check your email for reset link')
+            if (res.data.resetLink) setResetLink(res.data.resetLink)
+            toast.success(res.data.resetLink ? 'Development reset link generated' : 'Check your email for reset link')
         } catch (err) {
             setError(err.response?.data?.message || 'Could not send reset email')
         } finally {
@@ -37,6 +40,12 @@ const ForgotPassword = () => {
 
                 {message && <div className="mb-4 bg-green-50 border border-green-200 text-green-700 rounded-xl px-4 py-3 text-sm">{message}</div>}
                 {error && <div className="mb-4 bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3 text-sm">{error}</div>}
+                {resetLink && (
+                    <div className="mb-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-xl px-4 py-3 text-sm break-words">
+                        <p className="font-semibold mb-1">Development reset link:</p>
+                        <a href={resetLink} className="text-indigo-600 underline">{resetLink}</a>
+                    </div>
+                )}
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
