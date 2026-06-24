@@ -17,6 +17,9 @@ import Shop from "./Pages/Shop"
 import ProductDetail from "./Pages/ProductDetail"
 import CategoryPage from "./Pages/CategoryPage"
 import LogIn from "./Pages/LogIn"
+import ForgotPassword from "./Pages/ForgotPassword"
+import ResetPassword from "./Pages/ResetPassword"
+import ChangePassword from "./Pages/ChangePassword"
 import SignIn from "./Pages/SigIn"
 import Profile from "./Pages/Profile"
 import MyOrders from "./Pages/MyOrders"
@@ -94,7 +97,10 @@ function App() {
                 <Route path="/category/:id" element={<CategoryPage />} />
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/login" element={<LogIn />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password/:token" element={<ResetPassword />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/change-password" element={<ChangePassword />} />
                 <Route path="/wishlist" element={<Wishlist />} />
                 <Route path="/my-orders" element={<MyOrders />} />
                 <Route path="/my-orders/:id" element={<OrderDetail />} />

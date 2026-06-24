@@ -83,6 +83,10 @@ const LogIn = () => {
             />
           </div>
 
+          <div className="text-right -mt-2">
+            <NavLink to="/forgot-password" className="text-sm text-indigo-600 hover:underline font-medium">Forgot password?</NavLink>
+          </div>
+
           <button
             type="submit"
             disabled={loading}

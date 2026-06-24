@@ -135,6 +135,16 @@ const Profile = () => {
                     </div>
                 </div>
 
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6 flex items-center justify-between gap-4">
+                    <div>
+                        <h2 className="text-sm font-semibold text-gray-700">Password & Security</h2>
+                        <p className="text-xs text-gray-400 mt-1">Change your account password anytime.</p>
+                    </div>
+                    <NavLink to="/change-password" className="text-sm bg-indigo-600 text-white px-4 py-2 rounded-xl hover:bg-indigo-700 transition font-medium whitespace-nowrap">
+                        Change Password
+                    </NavLink>
+                </div>
+
                 {/* Saved Addresses */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
                     <div className="flex items-center justify-between mb-4">

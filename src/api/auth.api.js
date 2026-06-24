@@ -7,4 +7,7 @@ export const authApi = {
     logout: () => api.post("/logout"),
     getProfile: () => api.get("/profile"),
     updateProfile: (data) => api.put("/profile", data),
+    forgotPassword: (data) => api.post("/forgot-password", data),
+    resetPassword: (token, data) => api.post(`/reset-password/${token}`, data),
+    changePassword: (data) => api.put("/change-password", data),
 };
