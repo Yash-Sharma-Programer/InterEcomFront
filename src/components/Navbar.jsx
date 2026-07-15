@@ -47,7 +47,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 bg-white shadow-md border-b border-gray-100">
+      <nav className="sticky top-0 z-50  shadow-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3 sm:gap-4">
           {/* Logo */}
           <NavLink to="/" className="flex items-center gap-2 text-xl sm:text-2xl font-extrabold text-indigo-600 tracking-tight shrink-0">

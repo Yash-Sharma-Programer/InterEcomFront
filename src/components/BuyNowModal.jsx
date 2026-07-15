@@ -77,7 +77,7 @@ const BuyNowModal = ({ product, onClose }) => {
                 onClick={onClose}
             >
                 <div
-                    className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+                    className=" rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto"
                     onClick={e => e.stopPropagation()}
                 >
                     {step === 'success' ? (

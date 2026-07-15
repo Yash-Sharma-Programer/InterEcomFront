@@ -56,64 +56,82 @@ const LayoutWithNavbar = () => {
 
 function App() {
   return (
-    <div className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-blue-300/35 blur-3xl">
-      <AuthProvider>
-        <CartProvider>
-          <WishlistProvider>
-            <SiteMeta />
-            <BrowserRouter>
-              <Routes>
-                {/* Admin auth (no navbar / no sidebar) */}
-                <Route path="/adminlogin" element={<AdminLogin />} />
+    <div className="relative min-h-screen overflow-x-hidden bg-slate-50">
 
-                {/* Admin panel (sidebar layout, guarded) */}
-                <Route
-                  path="/admin"
-                  element={
-                    <AdminRoute>
-                      <AdminLayout />
-                    </AdminRoute>
-                  }
-                >
-                  <Route index element={<AdminDashboardHome />} />
-                  <Route path="products" element={<AdminProducts />} />
-                  <Route path="products/new" element={<ProductForm />} />
-                  <Route path="products/:id/edit" element={<ProductForm />} />
-                  <Route path="categories" element={<AdminCategories />} />
-                  <Route path="orders" element={<AdminOrders />} />
-                  <Route path="orders/:id" element={<AdminOrderDetail />} />
-                  <Route path="users" element={<AdminUsers />} />
-                  <Route path="users/:id" element={<AdminUserDetail />} />
-                  <Route path="reviews" element={<AdminReviews />} />
-                  <Route path="pages" element={<AdminPages />} />
-                  <Route path="menus" element={<AdminMenus />} />
-                  <Route path="settings" element={<AdminSiteSettings />} />
-                </Route>
+      {/* Background lights */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-blue-300/35 blur-3xl"
+      />
 
-                {/* Storefront (navbar layout) */}
-                <Route element={<LayoutWithNavbar />}>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/shop" element={<Shop />} />
-                  <Route path="/product/:id" element={<ProductDetail />} />
-                  <Route path="/category/:id" element={<CategoryPage />} />
-                  <Route path="/signin" element={<SignIn />} />
-                  <Route path="/login" element={<LogIn />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/reset-password/:token" element={<ResetPassword />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/change-password" element={<ChangePassword />} />
-                  <Route path="/wishlist" element={<Wishlist />} />
-                  <Route path="/my-orders" element={<MyOrders />} />
-                  <Route path="/my-orders/:id" element={<OrderDetail />} />
-                  <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/page/:slug" element={<PageView />} />
-                </Route>
-              </Routes>
-            </BrowserRouter>
-            <ToastContainer position="top-center" autoClose={2500} hideProgressBar newestOnTop />
-          </WishlistProvider>
-        </CartProvider>
-      </AuthProvider>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute top-40 -right-32 h-96 w-96 rounded-full bg-purple-300/30 blur-3xl"
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-cyan-200/30 blur-3xl"
+      />
+      <div className="relative z-10 min-h-screen">
+        <AuthProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <SiteMeta />
+              <BrowserRouter>
+                <Routes>
+                  {/* Admin auth (no navbar / no sidebar) */}
+                  <Route path="/adminlogin" element={<AdminLogin />} />
+
+                  {/* Admin panel (sidebar layout, guarded) */}
+                  <Route
+                    path="/admin"
+                    element={
+                      <AdminRoute>
+                        <AdminLayout />
+                      </AdminRoute>
+                    }
+                  >
+                    <Route index element={<AdminDashboardHome />} />
+                    <Route path="products" element={<AdminProducts />} />
+                    <Route path="products/new" element={<ProductForm />} />
+                    <Route path="products/:id/edit" element={<ProductForm />} />
+                    <Route path="categories" element={<AdminCategories />} />
+                    <Route path="orders" element={<AdminOrders />} />
+                    <Route path="orders/:id" element={<AdminOrderDetail />} />
+                    <Route path="users" element={<AdminUsers />} />
+                    <Route path="users/:id" element={<AdminUserDetail />} />
+                    <Route path="reviews" element={<AdminReviews />} />
+                    <Route path="pages" element={<AdminPages />} />
+                    <Route path="menus" element={<AdminMenus />} />
+                    <Route path="settings" element={<AdminSiteSettings />} />
+                  </Route>
+
+                  {/* Storefront (navbar layout) */}
+                  <Route element={<LayoutWithNavbar />}>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/shop" element={<Shop />} />
+                    <Route path="/product/:id" element={<ProductDetail />} />
+                    <Route path="/category/:id" element={<CategoryPage />} />
+                    <Route path="/signin" element={<SignIn />} />
+                    <Route path="/login" element={<LogIn />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password/:token" element={<ResetPassword />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/change-password" element={<ChangePassword />} />
+                    <Route path="/wishlist" element={<Wishlist />} />
+                    <Route path="/my-orders" element={<MyOrders />} />
+                    <Route path="/my-orders/:id" element={<OrderDetail />} />
+                    <Route path="/checkout" element={<Checkout />} />
+                    <Route path="/page/:slug" element={<PageView />} />
+                  </Route>
+                </Routes>
+              </BrowserRouter>
+              <ToastContainer position="top-center" autoClose={2500} hideProgressBar newestOnTop />
+            </WishlistProvider>
+          </CartProvider>
+        </AuthProvider>
+      </div>
     </div>
   )
 }

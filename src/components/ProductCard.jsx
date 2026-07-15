@@ -43,7 +43,7 @@ const ProductCard = ({ product, onBuyNow }) => {
     return (
         <NavLink
             to={`/product/${product._id}`}
-            className="group bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 flex flex-col"
+            className="group  border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 flex flex-col"
         >
             <div className="relative overflow-hidden bg-gray-50 aspect-square sm:h-44">
                 <img

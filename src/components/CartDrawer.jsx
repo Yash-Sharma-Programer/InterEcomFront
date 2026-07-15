@@ -21,7 +21,7 @@ const CartDrawer = ({ open, onClose }) => {
             )}
 
             {/* Drawer */}
-            <div className={`fixed top-0 right-0 h-full w-full sm:w-96 bg-white z-50 shadow-2xl transform transition-transform duration-300 ease-in-out flex flex-col ${open ? 'translate-x-0' : 'translate-x-full'}`}>
+            <div className={`fixed top-0 right-0 h-full w-full sm:w-96 z-50 shadow-2xl transform transition-transform duration-300 ease-in-out flex flex-col ${open ? 'translate-x-0' : 'translate-x-full'}`}>
                 <div className="flex items-center justify-between px-5 py-4 border-b">
                     <h2 className="text-xl font-bold text-gray-800">Your Cart 🛒</h2>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
